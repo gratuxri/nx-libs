@@ -3,3 +3,5 @@ Makefile.bak
 xmakefile
 exports/
 .build-exports/
+date.def
+nxversion.def
