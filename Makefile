@@ -19,6 +19,10 @@ USRLIBDIR       ?= $(NXLIBDIR)/X11
 INCLUDEDIR      ?= $(PREFIX)/include
 CONFIGURE       ?= ./configure
 
+# use Xfont2 if available in the build env
+FONT_DEFINES	?= $(shell pkg-config --modversion xfont2 1>/dev/null 2>/dev/null && echo "-DHAS_XFONT2")
+XFONTLIB	?= $(shell pkg-config --modversion xfont2 1>/dev/null 2>/dev/null && echo "-lXfont2" || echo "-lXfont")
+
 NX_VERSION_MAJOR=$(shell ./version.sh 1)
 NX_VERSION_MINOR=$(shell ./version.sh 2)
 NX_VERSION_MICRO=$(shell ./version.sh 3)
@@ -34,14 +38,18 @@ SHELL:=/bin/bash
 	    if test -f nx-X11/Makefile; then ${MAKE} -C nx-X11 $@; fi; \
 	fi
 
-	# clean auto-generated nxversion.def file \
+	# clean auto-generated files
 	if [ "x$@" == "xclean" ] || [ "x$@" = "xdistclean" ]; then \
+	    ./mesa-quilt pop -a; \
+	    rm -Rf nx-X11/extras/Mesa/.pc/; \
 	    rm -f nx-X11/config/cf/nxversion.def; \
+	    rm -f nx-X11/config/cf/date.def; \
 	    rm -f bin/nxagent; \
 	    rm -f bin/nxproxy; \
 	fi
 
-all: build
+all:
+	${MAKE} build
 
 test:
 	echo "No testing for NX (redistributed)"
@@ -64,7 +72,7 @@ build-full:
 	    > nx-X11/config/cf/nxversion.def
 
 	# prepare Makefiles and the nx-X11 symlinking magic
-	cd nx-X11 && make BuildEnv
+	cd nx-X11 && make BuildEnv FONT_DEFINES=$(FONT_DEFINES)
 
 	# build libNX_X11 and libNX_Xext prior to building
 	# nxcomp{ext,shad}.
@@ -72,7 +80,9 @@ build-full:
 
 	cd nxcompshad && autoconf && (${CONFIGURE}) && ${MAKE}
 
-	cd nx-X11 && ${MAKE} World USRLIBDIR=$(USRLIBDIR) SHLIBDIR=$(SHLIBDIR)
+	./mesa-quilt push -a
+
+	cd nx-X11 && ${MAKE} World USRLIBDIR=$(USRLIBDIR) SHLIBDIR=$(SHLIBDIR) FONT_DEFINES=$(FONT_DEFINES) XFONTLIB=$(XFONTLIB)
 
 	cd nxproxy && autoconf && (${CONFIGURE}) && ${MAKE}
 

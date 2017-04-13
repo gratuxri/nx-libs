@@ -55,6 +55,11 @@ SOFTWARE.
 #include	<nx-X11/Xproto.h>
 #include	"misc.h"
 #include	<X11/fonts/fontstruct.h>
+#ifdef HAS_XFONT2
+# include	<X11/fonts/libxfont2.h>
+#else
+# include	<X11/fonts/fontutil.h>
+#endif /* HAS_XFONT2 */
 #include	"dixfontstr.h"
 #include	"gcstruct.h"
 #include	"windowstr.h"
@@ -120,7 +125,8 @@ miPolyGlyphBlt(pDrawable, pGC, x, y, nglyph, ppci, pglyphBase)
 	     FONTMAXBOUNDS(pfont,descent);
 
     pPixmap = (*pDrawable->pScreen->CreatePixmap)(pDrawable->pScreen,
-						  width, height, 1);
+						  width, height, 1,
+						  CREATE_PIXMAP_USAGE_SCRATCH);
     if (!pPixmap)
 	return;
 
@@ -203,13 +209,18 @@ miImageGlyphBlt(pDrawable, pGC, x, y, nglyph, ppci, pglyphBase)
     CharInfoPtr *ppci;		/* array of character info */
     void        *pglyphBase;	/* start of array of glyphs */
 {
-    ExtentInfoRec info;		/* used by QueryGlyphExtents() */
+    ExtentInfoRec info;		/* used by xfont2_query_glyph_extents (libXfont2)
+                                   resp. QueryGlyphExtents() (libXfont1) */
     XID gcvals[3];
     int oldAlu, oldFS;
     unsigned long	oldFG;
     xRectangle backrect;
 
+#ifdef HAS_XFONT2
+    xfont2_query_glyph_extents(pGC->font, ppci, (unsigned long) nglyph, &info);
+#else
     QueryGlyphExtents(pGC->font, ppci, (unsigned long)nglyph, &info);
+#endif /* HAS_XFONT2 */
 
     if (info.overallWidth >= 0)
     {

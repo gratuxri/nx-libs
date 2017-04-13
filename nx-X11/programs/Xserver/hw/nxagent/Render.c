@@ -132,10 +132,10 @@ static void nxagentPrintFormat(XRenderPictFormat *pFormat);
 extern const CARD8 glyphDepths[];
 
 /*
- * From NXdispatch.c.
+ * From BitmapUtils.c.
  */
 
-extern void BitOrderInvert(unsigned char *data, int nbytes);
+extern void nxagentBitOrderInvert(unsigned char *data, int nbytes);
 
 /*
  * Other functions defined here.
@@ -2266,7 +2266,7 @@ void nxagentAddGlyphs(GlyphSetPtr glyphSet, Glyph *gids, xGlyphInfo *gi,
       if (glyphDepths[glyphSet -> fdepth] == 1 &&
               nxagentServerOrder() != BitmapBitOrder(nxagentDisplay))
       {
-        BitOrderInvert ((unsigned char *) normalizedImages, sizeImages);
+        nxagentBitOrderInvert ((unsigned char *) normalizedImages, sizeImages);
       }
     }
     else
@@ -2662,17 +2662,11 @@ void nxagentReconnectPicture(void * p0, XID x1, void *p2)
     #endif
   }
 
-  if (!pForm && pPicture->pSourcePict)
+  if (!pForm)
   {
-        /*possible we need to add support for other picture types, for example gradients...*/
-        switch(pPicture->pSourcePict->type)
-        {
-        case SourcePictTypeSolidFill:
-            nxagentPicturePriv(pPicture) -> picture = XRenderCreateSolidFill(nxagentDisplay,
-                    (const XRenderColor*) &pPicture->pSourcePict->solidFill.fullColor);
-            break;
-        }
-        return;
+    *pBool = False;
+
+    return;
   }
 
   #ifdef TEST
