@@ -1,7 +1,7 @@
 %global _hardened_build 1
 
 Name:           nx-libs
-Version:        3.5.99.5
+Version:        3.5.99.6
 Release:        0.0build1%{?dist}
 Summary:        NX X11 protocol compression libraries
 
@@ -287,7 +287,21 @@ Provides:       nx%{?_isa} = %{version}-%{release}
 Obsoletes:      nxauth < 3.5.99.1
 %if 0%{?fedora} || 0%{?rhel}
 # For /usr/share/X11/fonts
-Requires: xorg-x11-font-utils
+Requires:       xorg-x11-font-utils
+%endif
+
+# For /usr/bin/xkbcomp
+%if 0%{?fedora} || 0%{?rhel}
+Requires:       xorg-x11-xkb-utils
+%else
+%if 0%{?suse_version}
+%if 0%{?suse_version} >= 1310
+Requires:       xkbcomp
+%else
+# Older *SUSE versions bundle xkbcomp in xorg-x11. Ugly, but nothing we could change.
+Requires:       xorg-x11
+%endif
+%endif
 %endif
 
 %description -n nxagent
@@ -374,8 +388,10 @@ make install \
 # this needs to be adapted distribution-wise...
 %if 0%{?suse_version}
 ln -s ../fonts %{buildroot}%{_datadir}/nx/fonts
-%elif 0%{?fedora} || 0%{?rhel}
+%else
+%if 0%{?fedora} || 0%{?rhel}
 ln -s ../X11/fonts %{buildroot}%{_datadir}/nx/fonts
+%endif
 %endif
 
 # Remove static libs (they don't exist on SLES, so using -f here)
@@ -388,10 +404,6 @@ chmod 755  %{buildroot}%{_libdir}/lib*.so*
 rm -r %{buildroot}%{_includedir}/GL
 rm -r %{buildroot}%{_includedir}/nx-X11/extensions/XK*.h
 rm -r %{buildroot}%{_includedir}/nx-X11/extensions/*Xv*.h
-rm -r %{buildroot}%{_includedir}/nx-X11/extensions/dpms.h
-rm -r %{buildroot}%{_includedir}/nx-X11/extensions/security.h
-rm -r %{buildroot}%{_includedir}/nx-X11/extensions/sync.h
-rm -r %{buildroot}%{_includedir}/nx-X11/extensions/xtestext1.h
 rm -r %{buildroot}%{_includedir}/nx-X11/Xtrans
 
 %if 0%{?fdupes:1}
@@ -471,7 +483,6 @@ rm -r %{buildroot}%{_includedir}/nx-X11/Xtrans
 %defattr(-,root,root)
 %dir %{_includedir}/nx-X11/extensions
 %{_includedir}/nx-X11/extensions/panoramiXext.h
-%{_includedir}/nx-X11/extensions/record.h
 %{_includedir}/nx-X11/misc.h
 %{_includedir}/nx-X11/os.h
 
@@ -509,14 +520,20 @@ rm -r %{buildroot}%{_includedir}/nx-X11/Xtrans
 %{_includedir}/nx-X11/extensions/compositeproto.h
 %{_includedir}/nx-X11/extensions/damagewire.h
 %{_includedir}/nx-X11/extensions/damageproto.h
+%{_includedir}/nx-X11/extensions/dpms.h
 %{_includedir}/nx-X11/extensions/dpmsstr.h
 %{_includedir}/nx-X11/extensions/panoramiXproto.h
 %{_includedir}/nx-X11/extensions/randr.h
 %{_includedir}/nx-X11/extensions/randrproto.h
-%{_includedir}/nx-X11/extensions/recordstr.h
+%{_includedir}/nx-X11/extensions/record*.h
 %{_includedir}/nx-X11/extensions/render.h
 %{_includedir}/nx-X11/extensions/renderproto.h
+%{_includedir}/nx-X11/extensions/saver.h
+%{_includedir}/nx-X11/extensions/saverproto.h
+%{_includedir}/nx-X11/extensions/scrnsaver.h
+%{_includedir}/nx-X11/extensions/security.h
 %{_includedir}/nx-X11/extensions/securstr.h
+%{_includedir}/nx-X11/extensions/sync.h
 %{_includedir}/nx-X11/extensions/syncstr.h
 %{_includedir}/nx-X11/extensions/xcmiscstr.h
 %{_includedir}/nx-X11/extensions/xf86bigfont.h
@@ -524,6 +541,7 @@ rm -r %{buildroot}%{_includedir}/nx-X11/Xtrans
 %{_includedir}/nx-X11/extensions/xfixesproto.h
 %{_includedir}/nx-X11/extensions/xfixeswire.h
 %{_includedir}/nx-X11/extensions/xtestconst.h
+%{_includedir}/nx-X11/extensions/xtestext1.h
 %{_includedir}/nx-X11/extensions/xteststr.h
 
 %files -n nxagent

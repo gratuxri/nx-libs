@@ -39,8 +39,6 @@ Vcs-Browser: https://github.com/ArcticaProject/nx-libs/
 Package: nx-x11-common
 Architecture: all
 Multi-Arch: foreign
-Pre-Depends:
- dpkg (>= 1.15.7.2),
 Depends:
  ${misc:Depends},
 Breaks: nxlibs (<= 3.5.1),
@@ -51,7 +49,8 @@ Description: nx-X11 (common files)
  compression of the X11 protocol. This increases performance when
  using X applications over a network, especially a slow one.
  .
- This package provides all architecture-independent files for nx-X11.
+ This package provides all runtime architecture-independent files for
+ nx-X11 Xserver (aka nxagent).
 
 Package: nx-x11proto-core-dev
 Section: libdevel
@@ -102,13 +101,13 @@ Replaces: nxlibs,
           libnx-xrandr2,
           libnx-xrender1,
           libnx-xtst6,
-Description: nx-X11 client-side library
+Description: nxagent's libNX_X11 client-part library
  NX is a software suite which implements very efficient
  compression of the X11 protocol. This increases performance when
  using X applications over a network, especially a slow one.
  .
- This package provides the core nx-X11 libraries customized for
- nxagent.
+ This package provides the libNX_X11 library (a libX11 drop-in
+ replacement used by nxagent).
 
 Package: libnx-x11-dev
 Provides: libnx-x11-6-dev
@@ -141,13 +140,13 @@ Replaces: nxlibs-dev,
 Depends:
  libnx-x11-6 (= ${binary:Version}),
  ${misc:Depends},
-Description: nx-X11 client-side library (development headers)
+Description: nxagent's libNX_X11 client-part library (development headers)
  NX is a software suite which implements very efficient
  compression of the X11 protocol. This increases performance when
  using X applications over a network, especially a slow one.
  .
- This package provides the development headers for the core nx-X11
- libraries customized for nxagent.
+ This package provides development headers of the libNX_X11 library (a
+ libX11 drop-in replacement used by nxagent).
 
 Package: libnx-x11-6-dbg
 Architecture: any
@@ -229,16 +228,14 @@ Architecture: any
 Multi-Arch: same
 Depends:
  ${misc:Depends},
-Description: nx-X11 Damage extension wire protocol (dummy package)
+Description: nx-X11 Damage extension wire protocol
  NX is a software suite which implements very efficient
  compression of the X11 protocol. This increases performance when
  using X applications over a network, especially a slow one.
  .
- This package removes the obsoleted wire protocol headers for the
- libNX_Xdamage.so.1 library. With recent versions of NX, the system-wide
- installed libXdamage gets used.
- .
- This package can be safely removed.
+ This package provides development headers describing the wire protocol
+ for the Damage extension, used to notify clients of changes made to
+ particular areas.
 
 Package: nx-x11proto-xfixes-dev
 Section: libdevel
@@ -267,10 +264,9 @@ Description: nx-X11 Xinerama extension wire protocol
  compression of the X11 protocol. This increases performance when
  using X applications over a network, especially a slow one.
  .
- This package removes the obsoleted headers for the libNX_Xinerama.so.1
- library.
- .
- This package can be safely removed.
+ This package provides development headers describing the wire protocol
+ for the XINERAMA extension, used to use and manage a multiple-screen
+ display.
 
 Package: nx-x11proto-randr-dev
 Section: libdevel
@@ -278,16 +274,14 @@ Architecture: any
 Multi-Arch: same
 Depends:
  ${misc:Depends},
-Description: nx-X11 RandR extension wire protocol (dummy package)
+Description: nx-X11 RandR extension wire protocol
  NX is a software suite which implements very efficient
  compression of the X11 protocol. This increases performance when
  using X applications over a network, especially a slow one.
  .
- This package removes the obsoleted headers for the libNX_Xrandr.so.2
- library. With recent versions of NX, the system-wide installed libXrandr
- gets used.
- .
- This package can be safely removed.
+ This package provides development headers describing the wire protocol
+ for the RandR extension, used to change display properties such as
+ resolution, rotation, reflection, et al, on the fly.
 
 Package: nx-x11proto-render-dev
 Section: libdevel
@@ -295,16 +289,30 @@ Architecture: any
 Multi-Arch: same
 Depends:
  ${misc:Depends},
-Description: nx-X11 Render extension wire protocol (dummy package)
+Description: nx-X11 Render extension wire protocol
  NX is a software suite which implements very efficient
  compression of the X11 protocol. This increases performance when
  using X applications over a network, especially a slow one.
  .
- This package removes the obsoleted headers for the libNX_Xrender.so.1
- library. With recent versions of NX, the system-wide installed libXrender
- gets used.
+ This package provides development headers describing the wire protocol for
+ the Render extension, used to implement Porter-Duff operations within X.
+
+Package: nx-x11proto-scrnsaver-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends:
+ ${misc:Depends},
+Breaks: nxlibs (<= 3.5.1),
+        libnx-x11-dev (<< 2:3.5.0.29-1~),
+Description: nx-X11 Screen Saver extension wire protocol
+ NX is a software suite which implements very efficient
+ compression of the X11 protocol. This increases performance when
+ using X applications over a network, especially a slow one.
  .
- This package can be safely removed.
+ This package provides development headers describing the wire protocol
+ for the MIT-SCREEN-SAVER extension, used to notify the server of client
+ screen saver events.
 
 Package: libnx-mesa-extras-dev
 Section: libdevel
@@ -330,6 +338,8 @@ Depends:
  libxcomp3 (= ${binary:Version}),
  libxcompshad3 (= ${binary:Version}),
  libnx-x11-6 (= ${binary:Version}),
+# For /usr/bin/xkbcomp
+ x11-xkb-utils,
 Recommends:
  xfonts-base,
  xkb-data,
@@ -339,15 +349,15 @@ Breaks:
 Replaces:
  nxauth,
  libxcompext3,
-Description: NX agent
+Description: Nested Xserver (aka NX Agent) supporting the NX compression protocol
  NX is a software suite which implements very efficient
  compression of the X11 protocol. This increases performance when
  using X applications over a network, especially a slow one.
  .
- nxagent is an agent providing NX transport of X sessions. The application
- is based on the well known Xnest "nested" server. nxagent, like Xnest,
- is an X server for its own clients, and at the same time, an X client
- for a system's local X server.
+ nxagent is a nested Xserver providing NX transport of X sessions. The
+ application is based on the well known Xnest "nested" server. nxagent,
+ like Xnest, is an X server for its own clients, and at the same time, an
+ X client for a system's local X server.
  .
  The main scope of nxagent is to eliminate X round-trips or transform
  them into asynchronous replies. nxagent works together with nxproxy. 
@@ -431,7 +441,7 @@ Breaks: nxcomp (<= 3.5.1),
  qvd-libxcomp3,
 Replaces: nxcomp,
  qvd-libxcomp3,
-Description: nx-X11 compression library
+Description: NX compression library
  NX is a software suite which implements very efficient
  compression of the X11 protocol. This increases performance when
  using X applications over a network, especially a slow one.
@@ -447,7 +457,7 @@ Depends:
  ${misc:Depends},
 Breaks: nxcomp-dev (<=3.5.1)
 Replaces: nxcomp-dev,
-Description: nx-X11 compression library (development headers)
+Description: NX compression library (development headers)
  NX is a software suite which implements very efficient
  compression of the X11 protocol. This increases performance when
  using X applications over a network, especially a slow one.
@@ -482,7 +492,7 @@ Depends:
  libnx-x11-6 (= ${binary:Version}),
 Breaks: nxcompshad (<=3.5.1)
 Replaces: nxcompshad
-Description: nx-X11 shadowing library
+Description: NX shadowing library
  NX is a software suite which implements very efficient
  compression of the X11 protocol. This increases performance when
  using X applications over a network, especially a slow one.
@@ -498,7 +508,7 @@ Depends:
  ${misc:Depends},
 Breaks: nxcompshad-dev (<= 3.5.1),
 Replaces: nxcompshad-dev,
-Description: nx-X11 shadowing library (development headers)
+Description: NX shadowing library (development headers)
  NX is a software suite which implements very efficient
  compression of the X11 protocol. This increases performance when
  using X applications over a network, especially a slow one.

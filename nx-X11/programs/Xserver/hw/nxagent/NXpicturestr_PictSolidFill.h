@@ -24,6 +24,8 @@
 /**************************************************************************/
 
 /*
+ * $Id: picturestr.h,v 1.15 2005/12/09 18:35:21 ajax Exp $
+ *
  * Copyright © 2000 SuSE, Inc.
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
@@ -40,25 +42,22 @@
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL SuSE
  * BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
- * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN 
+ * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  * Author:  Keith Packard, SuSE, Inc.
  */
 
-/* this header file gets included into Xserver/render/glyphstr.h */
+/* this header file gets included into Xserver/render/picturestr.h */
 
-#ifndef NX_GLYPHSTR_GLYPHSET_H
-#define NX_GLYPHSTR_GLYPHSET_H 1
+#ifndef NX_PICTURESTR_PICTSOLIDFILL_H
+#define NX_PICTURESTR_PICTSOLIDFILL_H 1
 
-typedef struct _GlyphSet {
-    CARD32	    refcnt;
-    PictFormatPtr   format;
-    int		    fdepth;
-    GlyphHashRec    hash;
-    int             maxPrivate;
-    void            **devPrivates;
-    CARD32          remoteID;
-} GlyphSetRec, *GlyphSetPtr;
 
-#endif /* NX_GLYPHSTR_GLYPHSET_H */
+typedef struct _PictSolidFill {
+    unsigned int type;
+    CARD32 color;
+    xRenderColor fullColor;
+} PictSolidFill, *PictSolidFillPtr;
+
+#endif /* NX_PICTURESTR_PICTSOLIDFILL_H */
